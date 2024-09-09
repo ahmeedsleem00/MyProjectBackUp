@@ -1,8 +1,11 @@
 ﻿using CyrusCustomer.DAL;
+using CyrusCustomer.Domain;
 using CyrusCustomer.Domain.Models;
+using CyrusCustomer.DTO_s;
 using CyrusCustomer.Models;
 using CyrusCustomer.Spreadsheet;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
@@ -16,7 +19,8 @@ namespace CyrusCustomer.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public CustomerController(ApplicationDbContext context)
+        public CustomerController(ApplicationDbContext context
+                                  )
         {
             this._context = context;
         }
@@ -24,10 +28,9 @@ namespace CyrusCustomer.Controllers
         #region Index and Upload and ViewBranches
         public async Task<IActionResult> Index()
         {
-            //// Get the current logged-in user's email
-            //var userEmail = User.Identity.Name;
+        
 
-            var customers=  await _context.Customers.ToListAsync();
+            var customers =  await _context.Customers.ToListAsync();
 
             //// Retrieve the corresponding credential/user from the database
             //var user = await _context.Credentials.FirstOrDefaultAsync(c => c.Email == userEmail);
@@ -36,18 +39,28 @@ namespace CyrusCustomer.Controllers
             //var customers = await _context.Customers
             //                              .Where(c => c.CredentialId == user.Id)
             //                              .ToListAsync();
-
-            //return View(customers);
+        //    var viewModel = new CustomerListViewModel
+        //    {
+        //        Customers = customers,
+        //        Users = users,
+        //        CustomerUserAssignments = customers.ToDictionary(
+        //    customer => customer.Id,
+        //    customer => _context.CustomerUserAssignments
+        //                    .Where(cua => cua.CustomerId == customer.Id)
+        //                    .Select(cua => cua.UserId)
+        //                    .ToList()
+        //)
+        //    };
             return View(customers);
+            //return View(viewModel);
         }
 
         [HttpGet]
         public async Task<IActionResult> Index(string searchString, int pageNumber = 1, int pageSize = 10)
         {
-            //int countOfBranches = 1;
 
             var customersQuery = from c in _context.Customers
-                            select c;
+                                 select c;
             if (!String.IsNullOrEmpty(searchString))
             {
                 customersQuery = customersQuery.Where(s => s.Name.Contains(searchString)
@@ -66,7 +79,60 @@ namespace CyrusCustomer.Controllers
 
             return View(paginatedList);
             //return View(await customers.ToListAsync());
+
+            //var users = await _userManager.Users.ToListAsync();
+
+            //==================== Another Logic ======================
+            // Execute raw SQL query to get users
+            //var users = await _context.Set<UserDto>()
+            //     .FromSqlRaw("SELECT Id, UserName, Email FROM AspNetUsers")
+            //     .ToListAsync();
+
+            //var customersQuery = _context.Customers.AsQueryable();
+
+            //if (!string.IsNullOrEmpty(searchString))
+            //{
+            //    customersQuery = customersQuery.Where(c => c.Name.Contains(searchString) ||
+            //                                               c.TaxId.Contains(searchString));
+            //}
+
+            //int totalRecords = await customersQuery.CountAsync();
+            //var customers = await customersQuery
+            //                            .Skip((pageNumber - 1) * pageSize)
+            //                            .Take(pageSize)
+            //                            .ToListAsync();
+
+            //var viewModel = new CustomerListViewModel
+            //{
+            //    Customers = new PaginatedList<Customer>(customers, totalRecords, pageNumber, pageSize),
+            //    //Users =  users
+            //};
+
+            //return View(viewModel);
+
         }
+
+        //public async Task<IActionResult> IndexAll()
+        //{
+        //    var users = await _userManager.Users.ToListAsync();
+        //    var customers = await _context.Customers.ToListAsync();
+
+        //    var viewModel = new CustomerListViewModel
+        //    {
+        //        Customers = customers,
+        //        Users = users,
+        //        CustomerUserAssignments = customers.ToDictionary(
+        //            customer => customer.Id,
+        //            customer => _context.CustomerUserAssignments
+        //                .Where(cua => cua.CustomerId == customer.Id)
+        //                .Select(cua => cua.UserId)
+        //                .ToList()
+        //        )
+        //    };
+
+        //    return View("IndexAll", viewModel);
+        //}
+
 
         [HttpGet]
         public IActionResult Upload()
@@ -97,6 +163,8 @@ namespace CyrusCustomer.Controllers
             return View(viewModel);
         }
         #endregion
+
+       
 
         #region Details
 

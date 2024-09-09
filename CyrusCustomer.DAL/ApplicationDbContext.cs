@@ -1,5 +1,6 @@
 ﻿using CyrusCustomer.Domain;
 using CyrusCustomer.Domain.Models;
+using CyrusCustomer.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,9 @@ namespace CyrusCustomer.DAL
         public DbSet<Customer> Customers { get; set; }
         public DbSet<Credential> Credentials { get; set; }
         public DbSet<Branch> Branches { get; set; }
+        //public DbSet<ApplicationUser> Users { get; set; }
+        public DbSet<CustomerUserAssignment> CustomerUserAssignments { get; set; }
+
 
     }
 }
